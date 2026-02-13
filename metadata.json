@@ -1,0 +1,7 @@
+{
+  "name": "釜山仲夏之戀 - 5天4夜自由行規劃",
+  "description": "一個專為六月釜山旅遊設計的互動式行程規劃網站，結合 Gemini AI 提供即時旅遊諮詢與 Google 搜尋功能。",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
