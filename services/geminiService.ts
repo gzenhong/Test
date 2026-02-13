@@ -1,13 +1,24 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
+// 優先從 process.env 讀取，這在 Vite 經由 define 配置後會生效
+const getApiKey = () => {
+  try {
+    return process.env.API_KEY || "";
+  } catch (e) {
+    return "";
+  }
+};
 
 export const getTravelAssistantResponse = async (userPrompt: string) => {
-  if (!API_KEY) return { text: "API Key 尚未配置，請檢查環境變數。", sources: [] };
+  const apiKey = getApiKey();
+  
+  if (!apiKey) {
+    return { text: "API Key 尚未配置，請在 Vercel Environment Variables 中設定 API_KEY。", sources: [] };
+  }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [
@@ -25,8 +36,11 @@ export const getTravelAssistantResponse = async (userPrompt: string) => {
     const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
 
     return { text, sources };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
+    if (error.message?.includes("API key not valid")) {
+      return { text: "API Key 無效，請檢查專案權限與金鑰設定。", sources: [] };
+    }
     return { text: "發生錯誤，請稍後再試。", sources: [] };
   }
 };
